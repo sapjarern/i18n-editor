@@ -6,10 +6,10 @@ class BaseModel(models.Model):
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
-    created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, null=False, on_delete=models.CASCADE,
-                                   related_name='created_by_%(class)s')
-    updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, null=False, on_delete=models.CASCADE,
-                                   related_name='updated_by_%(class)s')
+    # created_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, null=False, on_delete=models.CASCADE,
+    #                                related_name='created_by_%(class)s')
+    # updated_by = models.ForeignKey(settings.AUTH_USER_MODEL, blank=False, null=False, on_delete=models.CASCADE,
+    #                                related_name='updated_by_%(class)s')
 
     class Meta:
         abstract = True
@@ -20,19 +20,27 @@ class Language(BaseModel):
     title = models.CharField(blank=False, null=False, max_length=100)
     # icon = models.ImageField()
 
+    def __str__(self) -> str:
+        return f'{self.code} - {self.title}'
+
 
 class Project(BaseModel):
     code = models.CharField(blank=False, null=False, max_length=10)
     title = models.CharField(blank=False, null=False, max_length=100)
     description = models.TextField()
-    language = models.ManyToManyField(Language, blank=False, null=False, on_delete=models.CASCADE,
-                                related_name='language_project')
+    language = models.ManyToManyField(Language, blank=False, null=False)
+
+    def __str__(self) -> str:
+        return f'{self.code} - {self.title}'
 
 
 class TranslationKey(BaseModel):
     key = models.CharField(blank=False, null=False, max_length=100)
     project = models.ForeignKey(Project, blank=False, null=False, on_delete=models.CASCADE,
                                 related_name='project_translation_key')
+    
+    def __str__(self) -> str:
+        return f'{self.key}'
 
 
 class Translate(BaseModel):
@@ -41,3 +49,6 @@ class Translate(BaseModel):
                                 related_name='language_project')
     translation_key = models.ForeignKey(TranslationKey, blank=False, null=False, on_delete=models.CASCADE,
                                 related_name='translation_key_translate')
+    
+    def __str__(self) -> str:
+        return f'{self.translation_key.key} - {self.language.code}'
