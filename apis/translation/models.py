@@ -22,6 +22,9 @@ class Language(BaseModel):
 
     def __str__(self) -> str:
         return f'{self.code} - {self.title}'
+    
+    class Meta:
+        ordering = ['code']
 
 
 class Project(BaseModel):
@@ -32,6 +35,9 @@ class Project(BaseModel):
 
     def __str__(self) -> str:
         return f'{self.code} - {self.title}'
+    
+    class Meta:
+        ordering = ['code']
 
 
 class TranslationKey(BaseModel):
@@ -43,6 +49,7 @@ class TranslationKey(BaseModel):
         return f'{self.key}'
     
     class Meta:
+        ordering = ['key']
         constraints = [
             models.UniqueConstraint(fields=['key', 'project'], name='translate_key_unique_project')
         ]
@@ -60,6 +67,7 @@ class Translate(BaseModel):
         return f'{self.translation_key.key} - {self.language.code}'
     
     class Meta:
+        ordering = ['language', 'translation_key']
         constraints = [
             models.UniqueConstraint(fields=['language', 'translation_key'], name='translate_unique_translation_key_per_language')
         ]
