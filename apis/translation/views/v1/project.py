@@ -21,7 +21,7 @@ class ProjectViewset(ModelViewSet):
             return ProjectForCreateSerializer
         return super().get_serializer_class()
     
-    @action(methods=["GET"], detail=True)
+    @action(methods=['GET'], detail=True)
     def export(self, request: Request, pk, *args, **kwargs):
         project: Project = self.get_object()
         language = request.query_params.get('language')
