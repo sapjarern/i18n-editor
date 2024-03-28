@@ -18,6 +18,23 @@ class ProjectSerializer(serializers.ModelSerializer):
         fields = ['code', 'title', 'description', 'language']
 
 
+class ProjectForListSerializer(serializers.ModelSerializer):
+    language = LanguageSerializer(many=True)
+
+    class Meta:
+        model = Project
+        fields = ['code', 'title', 'description', 'language']
+
+
+class ProjectForCreateSerializer(serializers.ModelSerializer):
+    language = serializers.ManyRelatedField(child_relation=serializers.CharField())
+    description = serializers.CharField(required=False)
+
+    class Meta:
+        model = Project
+        fields = ['code', 'title', 'description', 'language']
+
+
 class ProjectMinimalSerializer(serializers.ModelSerializer):
 
     class Meta:
@@ -46,7 +63,8 @@ class TranslationKeyForCreateSerializer(serializers.ModelSerializer):
 
     def to_internal_value(self, data):
         if request := self.context.get('request', None):
-            data.update({'project': request.project.pk})
+            if request.project:
+                data.update({'project': request.project.pk})
         data = super().to_internal_value(data)
         
         return data

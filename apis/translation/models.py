@@ -27,7 +27,7 @@ class Language(BaseModel):
 class Project(BaseModel):
     code = models.CharField(blank=False, null=False, max_length=10, unique=True)
     title = models.CharField(blank=False, null=False, max_length=100)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     language = models.ManyToManyField(Language, blank=False, null=False)
 
     def __str__(self) -> str:
