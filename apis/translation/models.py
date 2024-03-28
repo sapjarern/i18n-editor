@@ -25,7 +25,7 @@ class Language(BaseModel):
 
 
 class Project(BaseModel):
-    code = models.CharField(blank=False, null=False, max_length=10)
+    code = models.CharField(blank=False, null=False, max_length=10, unique=True)
     title = models.CharField(blank=False, null=False, max_length=100)
     description = models.TextField()
     language = models.ManyToManyField(Language, blank=False, null=False)
@@ -41,6 +41,12 @@ class TranslationKey(BaseModel):
     
     def __str__(self) -> str:
         return f'{self.key}'
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['key', 'project'], name='translate_key_unique_project')
+        ]
+
 
 
 class Translate(BaseModel):
@@ -52,3 +58,8 @@ class Translate(BaseModel):
     
     def __str__(self) -> str:
         return f'{self.translation_key.key} - {self.language.code}'
+    
+    class Meta:
+        constraints = [
+            models.UniqueConstraint(fields=['language', 'translation_key'], name='translate_unique_translation_key_per_language')
+        ]
