@@ -74,18 +74,6 @@ class TranslationKeyForCreateSerializer(serializers.ModelSerializer):
         fields = ['id', 'key', 'project']
 
 
-class TranslationKeyForDetailSerializer(serializers.ModelSerializer):
-    translate = serializers.SerializerMethodField()
-
-    @staticmethod
-    def get_translate(instance):
-        return dict((key, val) for key, val in instance.translation_key_translate.all().values_list('language__code', 'translate'))
-
-    class Meta:
-        model = TranslationKey
-        fields = ['key', 'translate']
-
-
 class TranslateSerializer(serializers.ModelSerializer):
     language = LanguageSerializer()
 
@@ -103,14 +91,44 @@ class TranslateForListSerializer(serializers.ModelSerializer):
         fields = ['id', 'translate', 'language', 'translation_key']
 
 
-class TranslateForCreateSerializer(serializers.ModelSerializer):
+class TranslateForTranslationKeyDetailSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Translate
+        fields = ['translate', 'language']
+
+
+class TranslateForTranslationKeyCreateSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Translate
+        fields = ['translate', 'language']
+
+
+class TranslationKeyForDetailSerializer(serializers.ModelSerializer):
+    translates = serializers.SerializerMethodField()
+
+    @staticmethod
+    def get_translates(instance):
+        return TranslateForTranslationKeyDetailSerializer(instance.translation_key_translate.all(), many=True).data
+
+    class Meta:
+        model = TranslationKey
+        fields = ['key', 'translates']
+
+
+class TranslateForCreateSerializer(serializers.Serializer):
+    translate = serializers.CharField()
     language = serializers.PrimaryKeyRelatedField(queryset=Language.objects.all())
-    translation_key = serializers.CharField()
+    translation_key = serializers.PrimaryKeyRelatedField(queryset=TranslationKey.objects.all())
 
     def to_internal_value(self, data):
         print(f'{data = }')
-        if translation_key := data.get('translation_key'):
-            TranslationKey.objects.filter(key=translation_key).first()
+        if 'translation_key' not in data:
+            translation_key = self.context.get('translation_key')
+            if isinstance(translation_key, TranslationKey):
+                translation_key = translation_key.pk
+            data.update({'translation_key': translation_key})
         return super().to_internal_value(data)
 
     class Meta:
@@ -119,7 +137,28 @@ class TranslateForCreateSerializer(serializers.ModelSerializer):
 
 
 class TranslationKeyForUpdateSerializer(serializers.ModelSerializer):
+    translates = TranslateForCreateSerializer(many=True, write_only=True)
+
+    def to_internal_value(self, data):
+        self.context.update({'translation_key': self.instance})
+        return super().to_internal_value(data)
+
+    def update(self, instance, validated_data):
+        translates = validated_data.pop('translates', [])
+        print(f'{translates = }')
+        for translate in translates:
+            value = translate.pop('translate', '')
+            try:
+                Translate.objects.update_or_create(**translate, defaults={'translate': value})
+            except Exception as e:
+                print(f'{e = }')
+        return super().update(instance, validated_data)
+
+    def to_representation(self, instance):
+        data = super().to_representation(instance)
+        data['translates'] = TranslateForTranslationKeyDetailSerializer(instance.translation_key_translate.all(), many=True).data
+        return data
 
     class Meta:
         model = TranslationKey
-        fields = ['key']
+        fields = ['key', 'translates']
