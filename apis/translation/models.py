@@ -50,7 +50,7 @@ class TranslationKey(BaseModel):
 
 
 class Translate(BaseModel):
-    translate = models.CharField(blank=False, null=False, max_length=255)
+    translate = models.CharField(blank=True, null=False, max_length=255)
     language = models.ForeignKey(Language, blank=False, null=False, on_delete=models.CASCADE,
                                 related_name='language_project')
     translation_key = models.ForeignKey(TranslationKey, blank=False, null=False, on_delete=models.CASCADE,

@@ -15,7 +15,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['code', 'title', 'description', 'language']
+        fields = ['id', 'code', 'title', 'description', 'language']
 
 
 class ProjectForListSerializer(serializers.ModelSerializer):
@@ -23,7 +23,7 @@ class ProjectForListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Project
-        fields = ['code', 'title', 'description', 'language']
+        fields = ['id', 'code', 'title', 'description', 'language']
 
 
 class ProjectForCreateSerializer(serializers.ModelSerializer):
