@@ -12,6 +12,8 @@ https://docs.djangoproject.com/en/5.0/ref/settings/
 import os
 from distutils.util import strtobool
 from pathlib import Path
+from i18n_editor.other_settings.core import *
+from i18n_editor.other_settings.storage import *
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

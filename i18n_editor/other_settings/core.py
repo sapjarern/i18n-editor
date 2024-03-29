@@ -11,11 +11,11 @@ CORS_ALLOW_HEADERS = (
     *CUSTOM_HEADERS
 )
 
-CSRF_TRUSTED_ORIGINS = os.getenv('', 'localhsot').split(',')
+CSRF_TRUSTED_ORIGINS = os.getenv('', 'http://localhsot').split(',')
 
 __all__ = [
-    CORS_ALLOWED_ORIGIN_REGEXES,
-    CORS_ALLOW_ALL_ORIGINS,
-    CORS_ALLOW_HEADERS,
-    # CSRF_TRUSTED_ORIGINS,
+    'CORS_ALLOWED_ORIGIN_REGEXES',
+    'CORS_ALLOW_ALL_ORIGINS',
+    'CORS_ALLOW_HEADERS',
+    'CSRF_TRUSTED_ORIGINS',
 ]
