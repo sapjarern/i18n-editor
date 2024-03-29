@@ -5,7 +5,7 @@ from rest_framework.request import Request
 from rest_framework.response import Response
 
 from apis.translation.models import Project, Translate
-from apis.translation.serializers import ProjectSerializer, ProjectForListSerializer, ProjectForCreateSerializer
+from apis.translation.serializers import ProjectSerializer, ProjectForListSerializer, ProjectForCreateUpdateSerializer
 from apis.translation.filters import ProjectFilter
 
 
@@ -17,8 +17,8 @@ class ProjectViewset(ModelViewSet):
     def get_serializer_class(self):
         if self.action == 'list':
             return ProjectForListSerializer
-        elif self.action == 'create':
-            return ProjectForCreateSerializer
+        elif self.action in ('create', 'update', 'partial_update'):
+            return ProjectForCreateUpdateSerializer
         return super().get_serializer_class()
     
     @action(methods=['GET'], detail=True)

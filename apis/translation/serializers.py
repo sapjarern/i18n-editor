@@ -1,3 +1,4 @@
+from django.db import transaction
 from rest_framework import serializers
 
 from apis.translation.models import Language, Project, TranslationKey, Translate
@@ -26,9 +27,22 @@ class ProjectForListSerializer(serializers.ModelSerializer):
         fields = ['id', 'code', 'title', 'description', 'language']
 
 
-class ProjectForCreateSerializer(serializers.ModelSerializer):
+class ProjectForCreateUpdateSerializer(serializers.ModelSerializer):
     language = serializers.ManyRelatedField(child_relation=serializers.CharField())
     description = serializers.CharField(required=False)
+
+    def validate(self, attrs):
+        attr = super().validate(attrs)
+        print(f'{attrs = }')
+        if language := attrs.get('language', []):
+            if len(language) != (search_lang := Language.objects.filter(code__in=language)).count():
+                error_lang = set(language) - set(search_lang.values_list('code', flat=True))
+                raise serializers.ValidationError({'language': f'language code `{", ".join(error_lang)}` not found.'})
+        return attr
+
+    @transaction.atomic
+    def create(self, validated_data):
+        return super().create(validated_data)
 
     class Meta:
         model = Project
