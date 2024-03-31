@@ -22,16 +22,22 @@ class Language(BaseModel):
 
     def __str__(self) -> str:
         return f'{self.code} - {self.title}'
+    
+    class Meta:
+        ordering = ['code']
 
 
 class Project(BaseModel):
-    code = models.CharField(blank=False, null=False, max_length=10)
+    code = models.CharField(blank=False, null=False, max_length=10, unique=True)
     title = models.CharField(blank=False, null=False, max_length=100)
-    description = models.TextField()
+    description = models.TextField(blank=True, null=True)
     language = models.ManyToManyField(Language, blank=False, null=False)
 
     def __str__(self) -> str:
         return f'{self.code} - {self.title}'
+    
+    class Meta:
+        ordering = ['code']
 
 
 class TranslationKey(BaseModel):
@@ -41,10 +47,17 @@ class TranslationKey(BaseModel):
     
     def __str__(self) -> str:
         return f'{self.key}'
+    
+    class Meta:
+        ordering = ['key']
+        constraints = [
+            models.UniqueConstraint(fields=['key', 'project'], name='translate_key_unique_project')
+        ]
+
 
 
 class Translate(BaseModel):
-    translate = models.CharField(blank=False, null=False, max_length=255)
+    translate = models.CharField(blank=True, null=False, max_length=255)
     language = models.ForeignKey(Language, blank=False, null=False, on_delete=models.CASCADE,
                                 related_name='language_project')
     translation_key = models.ForeignKey(TranslationKey, blank=False, null=False, on_delete=models.CASCADE,
@@ -52,3 +65,9 @@ class Translate(BaseModel):
     
     def __str__(self) -> str:
         return f'{self.translation_key.key} - {self.language.code}'
+    
+    class Meta:
+        ordering = ['language', 'translation_key']
+        constraints = [
+            models.UniqueConstraint(fields=['language', 'translation_key'], name='translate_unique_translation_key_per_language')
+        ]

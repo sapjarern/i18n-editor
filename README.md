@@ -3,6 +3,13 @@
 Django project for manage i18n key and translate value with Django 
 
 ----------
+
+## Progress
+
+**Phase 3**
+sync to s3
+
+----------
 ## Planning
 
 ### Phase 1
