@@ -15,6 +15,22 @@ class TranslateInline(admin.TabularInline):
     extra = 0
 
 
+class ProjectListFilter(admin.SimpleListFilter):
+    title = 'Project Code'
+    parameter_name = "project"
+
+    def lookups(self, request, model_admin):
+        return [(project.code, f'{project.code} - {project.title}') for project in Project.objects.all()]
+    
+    def queryset(self, request, queryset):
+        if self.value():
+            if queryset.model.__name__ == 'Translate':
+                return queryset.filter(translation_key__project__code=self.value())
+            elif queryset.model.__name__ == 'TranslationKey':
+                return queryset.filter(project__code=self.value())
+        return queryset
+
+
 class ProjectAdmin(admin.ModelAdmin):
     fields = [('code', 'title'), ('description', 'language')]
     list_display = ['code', 'title', 'language_list']
@@ -32,7 +48,7 @@ class ProjectAdmin(admin.ModelAdmin):
 class TranslationKeyAdmin(admin.ModelAdmin):
     fields = ['key', 'project']
     list_display = ['key', 'project']
-    list_filter = ['project']
+    list_filter = [ProjectListFilter]
     search_fields = ['key', 'project']
     show_full_result_count = True
     sortable_by = ['key', 'project__code']
@@ -42,8 +58,8 @@ class TranslationKeyAdmin(admin.ModelAdmin):
 
 class TranslateAdmin(admin.ModelAdmin):
     fields = ['translation_key', 'language', 'translate']
-    list_display = ['translation_key', 'language', 'translate']
-    list_filter = ['language']
+    list_display = ['translation_key', 'language', 'translate', 'translation_key__project']
+    list_filter = ['language', ProjectListFilter]
     search_fields = ['translate']
     show_full_result_count = True
     sortable_by = ['translation_key__key', 'language__code']

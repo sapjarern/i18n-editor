@@ -1,5 +1,5 @@
 import os
-from distutils.util import strtobool
+from i18n_editor.utils import strtobool
 from corsheaders.defaults import default_headers
 
 CORS_ALLOWED_ORIGIN_REGEXES=os.getenv('CORS_ALLOWED_ORIGIN_REGEXES', '').split(',')

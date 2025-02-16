@@ -33,7 +33,6 @@ class ProjectForCreateUpdateSerializer(serializers.ModelSerializer):
 
     def validate(self, attrs):
         attr = super().validate(attrs)
-        print(f'{attrs = }')
         if language := attrs.get('language', []):
             if len(language) != (search_lang := Language.objects.filter(code__in=language)).count():
                 error_lang = set(language) - set(search_lang.values_list('code', flat=True))
@@ -137,7 +136,6 @@ class TranslateForCreateSerializer(serializers.Serializer):
     translation_key = serializers.PrimaryKeyRelatedField(queryset=TranslationKey.objects.all())
 
     def to_internal_value(self, data):
-        print(f'{data = }')
         if 'translation_key' not in data:
             translation_key = self.context.get('translation_key')
             if isinstance(translation_key, TranslationKey):
@@ -159,7 +157,6 @@ class TranslationKeyForUpdateSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         translates = validated_data.pop('translates', [])
-        print(f'{translates = }')
         for translate in translates:
             value = translate.pop('translate', '')
             try:
